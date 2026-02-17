@@ -3,7 +3,7 @@ node_modules
 
 # Ignore env files
 .env
-
+.vscode/
 # Ignore build/dist folders
 dist/
 build/
