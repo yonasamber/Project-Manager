@@ -1,6 +1,7 @@
 //create task
 
 import { prisma } from "../configs/prisma.js";
+import { inngest } from "../inngest/index.js";
 
 export const createTask = async (req, res) => {
   try {
@@ -34,11 +35,9 @@ export const createTask = async (req, res) => {
       assigneeId &&
       project.members.find((member) => member.user.id === assigneeId)
     ) {
-      return res
-        .status(403)
-        .json({
-          message: "assignee is not a member of the project / workspace",
-        });
+      return res.status(403).json({
+        message: "assignee is not a member of the project / workspace",
+      });
     }
     const task = await prisma.task.create({
       data: {
@@ -55,6 +54,14 @@ export const createTask = async (req, res) => {
     const taskWithAssignee = await prisma.task.findUnique({
       where: { id: task.id },
       include: { assignee: true },
+    });
+
+    await inngest.send({
+      name: "app/task.assigned",
+      data: {
+        taskId: task.id,
+        origin,
+      },
     });
     res.json({ task: taskWithAssignee, message: "Task created successfully" });
   } catch (error) {
