@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import api from "../configs/api";
 import { useAuth } from "@clerk/clerk-react";
-
+import { addProject } from "../features/workspaceSlice.js";
 const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
   const { getToken } = useAuth();
 
@@ -38,7 +38,9 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
         "/api/projects",
         { workspaceId: workspace.id, ...formData },
         {
-          Authorization: `Bearer ${await getToken()}`,
+          headers: {
+            Authorization: `Bearer ${await getToken()}`,
+          },
         },
       );
       dispatch(addProject(data.project));
